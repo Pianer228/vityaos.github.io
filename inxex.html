@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>VITYA OS v1.9</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://i.postimg.cc/c1RG31ws/Y5Zp90.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    #desktop {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+
+    .icon {
+      width: 80px;
+      text-align: center;
+      margin: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .icon img {
+      display: block;
+      margin: 0 auto 5px;
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+    }
+
+    .icon span { font-size: 12px; }
+
+    #taskbar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      backdrop-filter: blur(6px);
+    }
+
+    #start-button {
+      font-size: 20px;
+      font-weight: bold;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      line-height: 35px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #start-button:hover { background: rgba(255,255,255,0.25); }
+    #clock { font-size: 14px; }
+
+    #start-menu {
+      position: fixed;
+      left: 10px;
+      bottom: 50px;
+      width: 260px;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 10px;
+      display: none;
+    }
+
+    .start-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .start-item:hover { background: rgba(255,255,255,0.15); }
+    .start-divider { height: 1px; background: rgba(255,255,255,0.25); margin: 8px 0; }
+
+    .window {
+      position: absolute;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      overflow: hidden;
+      width: 700px;
+      height: 450px;
+      resize: both;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .window-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      padding: 5px 10px;
+      cursor: move;
+      flex-shrink: 0;
+    }
+
+    .window-controls span { margin-left: 8px; cursor: pointer; }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      flex: 1;
+    }
+
+    .browser-ui {
+      display: flex;
+      gap: 5px;
+      padding: 5px;
+      background: rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .browser-ui input {
+      flex: 1;
+      padding: 5px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .browser-ui button {
+      padding: 5px 10px;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .browser-ui button:hover { background: rgba(255,255,255,0.35); }
+
+    .browser-content {
+      flex: 1;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .browser-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      flex-grow: 1;
+    }
+
+    #shutdown-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.92);
+      color: #fff;
+      font-size: 28px;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div id="desktop">
+    <div class="icon" data-app="paint">
+      <img src="https://img.icons8.com/windows/32/FFFFFF/paint-palette.png" alt="paint">
+      <span>Paint</span>
+    </div>
+    <div class="icon" data-app="about">
+      <img src="https://img.icons8.com/windows/32/FFFFFF/info.png" alt="about">
+      <span>About</span>
+    </div>
+    <div class="icon" data-app="games">
+      <img src="https://img.icons8.com/windows/32/FFFFFF/controller.png" alt="games">
+      <span>Games</span>
+    </div>
+    <div class="icon" data-app="browser">
+      <img src="https://img.icons8.com/windows/32/FFFFFF/internet.png" alt="browser">
+      <span>Browser</span>
+    </div>
+    <div class="icon" data-app="python">
+      <img src="https://img.icons8.com/windows/32/FFFFFF/python.png" alt="python">
+      <span>Python</span>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <div id="start-button">V</div>
+    <div id="clock"></div>
+  </div>
+
+  <div id="start-menu">
+    <div class="start-item" data-app="paint"><img src="https://img.icons8.com/windows/24/FFFFFF/paint-palette.png"> Paint</div>
+    <div class="start-item" data-app="about"><img src="https://img.icons8.com/windows/24/FFFFFF/info.png"> About</div>
+    <div class="start-item" data-app="games"><img src="https://img.icons8.com/windows/24/FFFFFF/controller.png"> Games</div>
+    <div class="start-item" data-app="browser"><img src="https://img.icons8.com/windows/24/FFFFFF/internet.png"> Browser</div>
+    <div class="start-item" data-app="python"><img src="https://img.icons8.com/windows/24/FFFFFF/python.png"> Python</div>
+    <div class="start-divider"></div>
+    <div class="start-item" id="power-off"><img src="https://img.icons8.com/ios-filled/24/FFFFFF/power-off-button.png"> Power Off</div>
+  </div>
+
+  <div id="windows-container"></div>
+  <div id="shutdown-overlay">System shutting down…</div>
+
+<script>
+  const apps = {
+    paint: { title: 'Paint', url: 'https://jspaint.app/' },
+    about: { title: 'About VITYA OS', html: '<div style="padding:12px"><h2>VITYA OS v1.9</h2><p>💻</p></div>' },
+    games: { title: 'VITYA Games', url: 'https://pianer228.github.io/somestuff/' },
+    browser: { title: 'VITYA Browser', kind: 'browser' },
+    python: { title: 'Python IDE', url: 'https://www.onlineide.pro/playground/python' }
+  };
+
+  const container = document.getElementById('windows-container');
+  const clock = document.getElementById('clock');
+  const startBtn = document.getElementById('start-button');
+  const startMenu = document.getElementById('start-menu');
+  const powerOff = document.getElementById('power-off');
+  const shutdown = document.getElementById('shutdown-overlay');
+
+  function updateClock() {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  startBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', (e) => {
+    if (!startMenu.contains(e.target) && e.target !== startBtn) startMenu.style.display = 'none';
+  });
+
+  powerOff.addEventListener('click', () => {
+    startMenu.style.display = 'none';
+    shutdown.style.display = 'flex';
+    setTimeout(()=>location.reload(),2500);
+  });
+
+  document.querySelectorAll('.icon').forEach(icon => {
+    icon.addEventListener('dblclick', () => openApp(icon.dataset.app));
+  });
+  document.querySelectorAll('#start-menu .start-item[data-app]')
+    .forEach(item => item.addEventListener('click', () => {
+      openApp(item.dataset.app);
+      startMenu.style.display = 'none';
+    }));
+
+  let zIndexTop = 10;
+
+  function openApp(appName) {
+    const app = apps[appName];
+    if (!app) return;
+    const win = document.createElement('div');
+    win.className = 'window';
+    win.style.top = `${50 + Math.random() * 80}px`;
+    win.style.left = `${50 + Math.random() * 80}px`;
+    win.style.zIndex = ++zIndexTop;
+
+    const header = document.createElement('div');
+    header.className = 'window-header';
+    header.innerHTML = `<span>${app.title}</span><div class='window-controls'><span class='fullscreen'>⛶</span><span class='close'>✖</span></div>`;
+    const content = document.createElement('div');
+    content.style.display = "flex";
+    content.style.flexDirection = "column";
+    content.style.flex = "1";
+
+    if (app.kind === 'browser') {
+      content.innerHTML = `
+        <div class="browser-ui">
+          <input type="text" id="browser-url" placeholder="Введите запрос или адрес...">
+          <button id="browser-go">🔍</button>
+        </div>
+        <div class="browser-content">
+          <iframe id="browser-frame" src="https://gigablast.org/" referrerpolicy="no-referrer"></iframe>
+        </div>`;
+      setTimeout(() => initBrowser(content), 0);
+    } else if (app.url) {
+      content.innerHTML = `<iframe src="${app.url}"></iframe>`;
+    } else if (app.html) {
+      content.innerHTML = app.html;
+    }
+
+    win.appendChild(header);
+    win.appendChild(content);
+    container.appendChild(win);
+
+    header.querySelector('.close').onclick = () => win.remove();
+    header.querySelector('.fullscreen').onclick = () => toggleFullScreen(win);
+    win.addEventListener('mousedown', () => win.style.zIndex = ++zIndexTop);
+
+    // перетаскивание
+    let offsetX, offsetY, isDown = false;
+    header.addEventListener('mousedown', e => { isDown = true; offsetX = e.clientX - win.offsetLeft; offsetY = e.clientY - win.offsetTop; });
+    document.addEventListener('mouseup', () => isDown = false);
+    document.addEventListener('mousemove', e => {
+      if (!isDown || win.classList.contains('maximized')) return;
+      win.style.left = (e.clientX - offsetX) + 'px';
+      win.style.top = (e.clientY - offsetY) + 'px';
+    });
+  }
+
+  function toggleFullScreen(win) {
+    const taskbarHeight = 40;
+    if (win.classList.contains('maximized')) {
+      win.classList.remove('maximized');
+      win.style.width = '700px';
+      win.style.height = '450px';
+      win.style.left = '50px';
+      win.style.top = '50px';
+    } else {
+      win.classList.add('maximized');
+      win.style.top = '0';
+      win.style.left = '0';
+      win.style.width = '100%';
+      win.style.height = `calc(100vh - ${taskbarHeight}px)`;
+    }
+  }
+
+  function initBrowser(root) {
+    const frame = root.querySelector('#browser-frame');
+    const input = root.querySelector('#browser-url');
+    const goBtn = root.querySelector('#browser-go');
+
+    function navigate() {
+      const q = input.value.trim();
+      if (!q) return;
+      // Если пользователь ввел сайт
+      if (q.startsWith('http://') || q.startsWith('https://')) {
+        frame.src = q;
+      } else if (q.includes('.') && !q.includes(' ')) {
+        frame.src = 'https://' + q;
+      } else {
+        // Поиск через Gigablast
+        frame.src = 'https://gigablast.org/search?q=' + encodeURIComponent(q);
+      }
+    }
+
+    goBtn.onclick = navigate;
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        navigate();
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
