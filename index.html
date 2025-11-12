@@ -7,7 +7,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: url('https://i.postimg.cc/tCt6651x/Bez-nazvania23-20251112072206.png') no-repeat center center fixed;
+      background: url('https://image2url.com/images/1762804398658-b9de2338-f730-473c-8b20-2e7bfc174b2e.png') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Segoe UI', sans-serif;
       color: #fff;
@@ -200,6 +200,11 @@
       <img src="https://img.icons8.com/windows/32/FFFFFF/python.png" alt="python">
       <span>Python</span>
     </div>
+    <div class="icon" data-app="wallpaper">
+      <img src="https://img.icons8.com/windows/32/FFFFFF/picture.png">
+      <span>Wallpaper</span>
+    </div>
+    
   </div>
 
   <div id="taskbar">
@@ -213,125 +218,241 @@
     <div class="start-item" data-app="games"><img src="https://img.icons8.com/windows/24/FFFFFF/controller.png"> Games</div>
     <div class="start-item" data-app="browser"><img src="https://img.icons8.com/windows/24/FFFFFF/internet.png"> Browser</div>
     <div class="start-item" data-app="python"><img src="https://img.icons8.com/windows/24/FFFFFF/python.png"> Python</div>
+    <div class="start-item" data-app="wallpaper"><img src="https://img.icons8.com/windows/24/FFFFFF/picture.png"> Wallpaper</div>
+  
     <div class="start-divider"></div>
-    <div class="start-item" id="power-off"><img src="https://img.icons8.com/ios-filled/24/FFFFFF/power-off-button.png"> Power Off</div>
+  
+    <div class="start-item" id="power-off">
+      <img src="https://img.icons8.com/ios-filled/24/FFFFFF/power-off-button.png"> Power Off
+    </div>
   </div>
+  
 
   <div id="windows-container"></div>
-  <div id="shutdown-overlay">System sh<script>
-  const apps = {
-    paint: { title: 'Paint', url: 'https://jspaint.app/' },
-    about: { title: 'About VITYA OS', html: '<div style="padding:12px"><h2>VITYA OS v1.9</h2><p>💻</p></div>' },
-    games: { title: 'VITYA Games', url: 'https://pianer228.github.io/somestuff/' },
-    browser: { title: 'VITYA Browser', kind: 'browser' },
-    python: { title: 'Python IDE', url: 'https://www.onlineide.pro/playground/python' }
+  <div id="shutdown-overlay">System sh
+    <script>
+      const apps = {
+        paint: { title: 'Paint', url: 'https://jspaint.app/' },
+        about: { title: 'About VITYA OS', html: '<div style="padding:12px"><h2>VITYA OS v1.9</h2><p>💻 Made by Pianer</p></div>' },
+        games: { title: 'VITYA Games', url: 'https://pianer228.github.io/somestuff/' },
+        browser: { title: 'VITYA Browser', kind: 'browser' },
+        python: { title: 'Python IDE', url: 'https://www.onlineide.pro/playground/python' },
+        wallpaper: { title: 'Wallpaper Settings', kind: 'wallpaper' }
+      };
+    
+      const container = document.getElementById('windows-container');
+      const clock = document.getElementById('clock');
+      const startBtn = document.getElementById('start-button');
+      const startMenu = document.getElementById('start-menu');
+      const powerOff = document.getElementById('power-off');
+      const shutdown = document.getElementById('shutdown-overlay');
+      const body = document.body;
+    
+      // === Загружаем сохранённый фон ===
+      const savedBg = localStorage.getItem('vitya_wallpaper');
+      if (savedBg) {
+        body.style.backgroundImage = `url('${savedBg}')`;
+        body.style.backgroundSize = "cover";
+        body.style.backgroundPosition = "center";
+      }
+    
+      function updateClock() {
+        const now = new Date();
+        clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+    
+      startBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+      });
+      document.addEventListener('click', (e) => {
+        if (!startMenu.contains(e.target) && e.target !== startBtn) startMenu.style.display = 'none';
+      });
+    
+      powerOff.addEventListener('click', () => {
+        startMenu.style.display = 'none';
+        shutdown.style.display = 'flex';
+        setTimeout(()=>location.reload(),2500);
+      });
+    
+      document.querySelectorAll('.icon').forEach(icon => {
+        icon.addEventListener('dblclick', () => openApp(icon.dataset.app));
+      });
+      document.querySelectorAll('#start-menu .start-item[data-app]')
+        .forEach(item => item.addEventListener('click', () => {
+          openApp(item.dataset.app);
+          startMenu.style.display = 'none';
+        }));
+    
+      let zIndexTop = 10;
+    
+      function openApp(appName) {
+        const app = apps[appName];
+        if (!app) return;
+        const win = document.createElement('div');
+        win.className = 'window';
+        win.style.top = `${50 + Math.random() * 80}px`;
+        win.style.left = `${50 + Math.random() * 80}px`;
+        win.style.zIndex = ++zIndexTop;
+    
+        const header = document.createElement('div');
+        header.className = 'window-header';
+        header.innerHTML = `<span>${app.title}</span><div class='window-controls'><span class='fullscreen'>⛶</span><span class='close'>✖</span></div>`;
+        const content = document.createElement('div');
+        content.style.display = "flex";
+        content.style.flexDirection = "column";
+        content.style.flex = "1";
+    
+        // --- браузер ---
+        if (app.kind === 'browser') {
+          content.innerHTML = `
+            <div class="browser-content" style="background:white;flex:1;">
+              <iframe id="browser-frame" src="https://browser.lol/create" referrerpolicy="no-referrer" style="width:100%;height:100%;border:none;"></iframe>
+            </div>`;
+        }
+    
+        // --- настройки фона ---
+        else if (app.kind === 'wallpaper') {
+          content.innerHTML = `
+            <div style="padding:15px;color:black;background:white;height:100%;overflow:auto;">
+              <h3>Wallpaper Settings</h3>
+              <p>Введите тему для поиска изображения:</p>
+              <input type="text" id="wallpaper-query" placeholder="Например: space, forest, neon" style="width:80%;padding:6px;">
+              <button id="wallpaper-search" style="padding:6px 12px;">🔍 Поиск</button>
+              <div id="wallpaper-preview" style="margin-top:15px;text-align:center;"></div>
+            </div>
+          `;
+          setTimeout(() => initWallpaperApp(content), 0);
+        }
+    
+        else if (app.url) {
+          content.innerHTML = `<iframe src="${app.url}"></iframe>`;
+        } else if (app.html) {
+          content.innerHTML = app.html;
+        }
+    
+        win.appendChild(header);
+        win.appendChild(content);
+        container.appendChild(win);
+    
+        header.querySelector('.close').onclick = () => win.remove();
+        header.querySelector('.fullscreen').onclick = () => toggleFullScreen(win);
+        win.addEventListener('mousedown', () => win.style.zIndex = ++zIndexTop);
+    
+        // перетаскивание
+        let offsetX, offsetY, isDown = false;
+        header.addEventListener('mousedown', e => { isDown = true; offsetX = e.clientX - win.offsetLeft; offsetY = e.clientY - win.offsetTop; });
+        document.addEventListener('mouseup', () => isDown = false);
+        document.addEventListener('mousemove', e => {
+          if (!isDown || win.classList.contains('maximized')) return;
+          win.style.left = (e.clientX - offsetX) + 'px';
+          win.style.top = (e.clientY - offsetY) + 'px';
+        });
+      }
+    
+      function toggleFullScreen(win) {
+        const taskbarHeight = 40;
+        if (win.classList.contains('maximized')) {
+          win.classList.remove('maximized');
+          win.style.width = '700px';
+          win.style.height = '450px';
+          win.style.left = '50px';
+          win.style.top = '50px';
+        } else {
+          win.classList.add('maximized');
+          win.style.top = '0';
+          win.style.left = '0';
+          win.style.width = '100%';
+          win.style.height = `calc(100vh - ${taskbarHeight}px)`;
+        }
+      }
+    
+      function initWallpaperApp(root) {
+  const preview = root.querySelector('#wallpaper-preview');
+
+  // Создаём интерфейс
+  root.innerHTML = `
+    <div style="padding:15px;color:black;background:white;height:100%;overflow:auto;">
+      <h3>Wallpaper Settings</h3>
+      <p>Выберите один из случайных фонов или сбросьте на стандартный.</p>
+      <div style="margin-bottom:10px;">
+        <button id="wallpaper-random" style="padding:6px 12px;">🎲 Случайные фоны</button>
+        <button id="wallpaper-reset" style="padding:6px 12px;margin-left:5px;">♻️ Сбросить фон</button>
+      </div>
+      <div id="wallpaper-preview" style="margin-top:15px;text-align:center;"></div>
+    </div>
+  `;
+
+  const randomBtn = root.querySelector('#wallpaper-random');
+  const resetBtn = root.querySelector('#wallpaper-reset');
+  const previewDiv = root.querySelector('#wallpaper-preview');
+
+  // Загружаем случайные обои
+  async function loadRandomWallpapers() {
+    previewDiv.innerHTML = `<p>Загрузка случайных изображений...</p>`;
+    try {
+      const res = await fetch("https://boringapi.com/api/v1/photos/random?num=5");
+      const data = await res.json();
+
+      if (!data.success || !data.photos || data.photos.length === 0) {
+        previewDiv.innerHTML = `<p>⚠️ Не удалось загрузить изображения.</p>`;
+        return;
+      }
+
+      previewDiv.innerHTML = `<div id="wallpaper-grid" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;"></div>`;
+      const grid = previewDiv.querySelector('#wallpaper-grid');
+
+      data.photos.forEach(photo => {
+        const img = document.createElement('img');
+        img.src = photo.url;
+        img.style.width = '160px';
+        img.style.height = '100px';
+        img.style.objectFit = 'cover';
+        img.style.cursor = 'pointer';
+        img.style.borderRadius = '8px';
+        img.style.transition = 'transform 0.2s';
+        img.title = "Нажмите, чтобы установить фон";
+
+        img.onmouseover = () => img.style.transform = 'scale(1.05)';
+        img.onmouseout = () => img.style.transform = 'scale(1.0)';
+        img.onclick = () => {
+          body.style.backgroundImage = `url('${photo.url}')`;
+          localStorage.setItem('vitya_wallpaper', photo.url);
+          previewDiv.innerHTML = `<p>✅ Фон установлен и сохранён!</p>
+            <img src="${photo.url}" style="max-width:100%;margin-top:10px;border-radius:8px;">`;
+        };
+
+        grid.appendChild(img);
+      });
+    } catch (err) {
+      console.error(err);
+      previewDiv.innerHTML = `<p>⚠️ Ошибка при загрузке. Попробуйте позже.</p>`;
+    }
+  }
+
+  // Кнопка "Случайные фоны"
+  randomBtn.onclick = loadRandomWallpapers;
+
+  // Кнопка "Сбросить фон"
+  resetBtn.onclick = () => {
+    const defaultBg = 'https://image2url.com/images/1762804398658-b9de2338-f730-473c-8b20-2e7bfc174b2e.png';
+    body.style.backgroundImage = `url('${defaultBg}')`;
+    localStorage.removeItem('vitya_wallpaper');
+    previewDiv.innerHTML = `<p>🔁 Фон сброшен на стандартный.</p>
+      <img src="${defaultBg}" style="max-width:100%;margin-top:10px;border-radius:8px;">`;
   };
 
-  const container = document.getElementById('windows-container');
-  const clock = document.getElementById('clock');
-  const startBtn = document.getElementById('start-button');
-  const startMenu = document.getElementById('start-menu');
-  const powerOff = document.getElementById('power-off');
-  const shutdown = document.getElementById('shutdown-overlay');
-
-  function updateClock() {
-    const now = new Date();
-    clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  startBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
-  });
-  document.addEventListener('click', (e) => {
-    if (!startMenu.contains(e.target) && e.target !== startBtn) startMenu.style.display = 'none';
-  });
-
-  powerOff.addEventListener('click', () => {
-    startMenu.style.display = 'none';
-    shutdown.style.display = 'flex';
-    setTimeout(()=>location.reload(),2500);
-  });
-
-  document.querySelectorAll('.icon').forEach(icon => {
-    icon.addEventListener('dblclick', () => openApp(icon.dataset.app));
-  });
-  document.querySelectorAll('#start-menu .start-item[data-app]')
-    .forEach(item => item.addEventListener('click', () => {
-      openApp(item.dataset.app);
-      startMenu.style.display = 'none';
-    }));
-
-  let zIndexTop = 10;
-
-  function openApp(appName) {
-    const app = apps[appName];
-    if (!app) return;
-    const win = document.createElement('div');
-    win.className = 'window';
-    win.style.top = `${50 + Math.random() * 80}px`;
-    win.style.left = `${50 + Math.random() * 80}px`;
-    win.style.zIndex = ++zIndexTop;
-
-    const header = document.createElement('div');
-    header.className = 'window-header';
-    header.innerHTML = `<span>${app.title}</span><div class='window-controls'><span class='fullscreen'>⛶</span><span class='close'>✖</span></div>`;
-    const content = document.createElement('div');
-    content.style.display = "flex";
-    content.style.flexDirection = "column";
-    content.style.flex = "1";
-
-    if (app.kind === 'browser') {
-      content.innerHTML = `
-        <div class="browser-content" style="background:white;flex:1;">
-          <iframe id="browser-frame" src="https://browser.lol/create" referrerpolicy="no-referrer" style="width:100%;height:100%;border:none;"></iframe>
-        </div>`;
-    } else if (app.url) {
-      content.innerHTML = `<iframe src="${app.url}"></iframe>`;
-    } else if (app.html) {
-      content.innerHTML = app.html;
-    }
-
-    win.appendChild(header);
-    win.appendChild(content);
-    container.appendChild(win);
-
-    header.querySelector('.close').onclick = () => win.remove();
-    header.querySelector('.fullscreen').onclick = () => toggleFullScreen(win);
-    win.addEventListener('mousedown', () => win.style.zIndex = ++zIndexTop);
-
-    // перетаскивание
-    let offsetX, offsetY, isDown = false;
-    header.addEventListener('mousedown', e => { isDown = true; offsetX = e.clientX - win.offsetLeft; offsetY = e.clientY - win.offsetTop; });
-    document.addEventListener('mouseup', () => isDown = false);
-    document.addEventListener('mousemove', e => {
-      if (!isDown || win.classList.contains('maximized')) return;
-      win.style.left = (e.clientX - offsetX) + 'px';
-      win.style.top = (e.clientY - offsetY) + 'px';
-    });
-  }
-
-  function toggleFullScreen(win) {
-    const taskbarHeight = 40;
-    if (win.classList.contains('maximized')) {
-      win.classList.remove('maximized');
-      win.style.width = '700px';
-      win.style.height = '450px';
-      win.style.left = '50px';
-      win.style.top = '50px';
-    } else {
-      win.classList.add('maximized');
-      win.style.top = '0';
-      win.style.left = '0';
-      win.style.width = '100%';
-      win.style.height = `calc(100vh - ${taskbarHeight}px)`;
-    }
-  }
+  // При первом открытии сразу показываем 5 случайных
+  loadRandomWallpapers();
+}
 
 
-</script>
+
+
+    </script>
+    
 
 </body>
 </html>
