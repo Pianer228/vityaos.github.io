@@ -218,9 +218,7 @@
   </div>
 
   <div id="windows-container"></div>
-  <div id="shutdown-overlay">System shutting down…</div>
-
-<script>
+  <div id="shutdown-overlay">System sh<script>
   const apps = {
     paint: { title: 'Paint', url: 'https://jspaint.app/' },
     about: { title: 'About VITYA OS', html: '<div style="padding:12px"><h2>VITYA OS v1.9</h2><p>💻</p></div>' },
@@ -287,14 +285,9 @@
 
     if (app.kind === 'browser') {
       content.innerHTML = `
-        <div class="browser-ui">
-          <input type="text" id="browser-url" placeholder="Введите запрос или адрес...">
-          <button id="browser-go">🔍</button>
-        </div>
-        <div class="browser-content">
-          <iframe id="browser-frame" src="https://gigablast.org/" referrerpolicy="no-referrer"></iframe>
+        <div class="browser-content" style="background:white;flex:1;">
+          <iframe id="browser-frame" src="https://browser.lol/create" referrerpolicy="no-referrer" style="width:100%;height:100%;border:none;"></iframe>
         </div>`;
-      setTimeout(() => initBrowser(content), 0);
     } else if (app.url) {
       content.innerHTML = `<iframe src="${app.url}"></iframe>`;
     } else if (app.html) {
@@ -337,33 +330,7 @@
     }
   }
 
-  function initBrowser(root) {
-    const frame = root.querySelector('#browser-frame');
-    const input = root.querySelector('#browser-url');
-    const goBtn = root.querySelector('#browser-go');
 
-    function navigate() {
-      const q = input.value.trim();
-      if (!q) return;
-      // Если пользователь ввел сайт
-      if (q.startsWith('http://') || q.startsWith('https://')) {
-        frame.src = q;
-      } else if (q.includes('.') && !q.includes(' ')) {
-        frame.src = 'https://' + q;
-      } else {
-        // Поиск через Gigablast
-        frame.src = 'https://gigablast.org/search?q=' + encodeURIComponent(q);
-      }
-    }
-
-    goBtn.onclick = navigate;
-    input.addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        navigate();
-      }
-    });
-  }
 </script>
 
 </body>
